@@ -36,4 +36,3 @@ databases:
   - name: esquire-db
     plan: free
     databaseName: esquire
-    user: postgres
