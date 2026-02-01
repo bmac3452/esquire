@@ -14,7 +14,7 @@ services:
       - key: RATE_LIMIT_MAX
         value: 200
       - key: CORS_ORIGIN
-        value: https://esquire-frontend.onrender.com
+        value: "*"
       - key: JWT_SECRET
         sync: false
       - key: DATABASE_URL
