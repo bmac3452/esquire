@@ -2,7 +2,7 @@ services:
   - type: web
     name: esquire-api
     env: node
-    rootDir: api
+    rootDir: .
     buildCommand: npm install && npm run build
     startCommand: npm start
     healthCheckPath: /health
@@ -25,16 +25,15 @@ services:
   - type: web
     name: esquire-frontend
     env: static
-    rootDir: api/frontend
+    rootDir: frontend
     buildCommand: npm install && npm run build
     staticPublishPath: dist
     envVars:
       - key: VITE_API_URL
         value: https://esquire-api.onrender.com
 
-  - type: pserv
-    name: esquire-db
-    env: postgres
+databases:
+  - name: esquire-db
     plan: free
     databaseName: esquire
     user: postgres
