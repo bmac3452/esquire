@@ -92,7 +92,7 @@ router.get("/posts", requireAuth, async (req, res) => {
       skip
     });
 
-    const items = posts.map((post) => {
+    const items = posts.map((post: (typeof posts)[number]) => {
       const likeCount = post._count.likes;
       const commentCount = post._count.comments;
       const likedByMe = post.likes.length > 0;
