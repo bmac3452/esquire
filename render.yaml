@@ -1,0 +1,40 @@
+services:
+  - type: web
+    name: esquire-api
+    env: node
+    rootDir: api
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+      - key: RATE_LIMIT_MAX
+        value: 200
+      - key: CORS_ORIGIN
+        value: https://esquire-frontend.onrender.com
+      - key: JWT_SECRET
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: esquire-db
+          property: connectionString
+
+  - type: web
+    name: esquire-frontend
+    env: static
+    rootDir: api/frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://esquire-api.onrender.com
+
+  - type: pserv
+    name: esquire-db
+    env: postgres
+    plan: free
+    databaseName: esquire
+    user: postgres
