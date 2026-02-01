@@ -4,10 +4,30 @@ import { Server } from "socket.io";
 import app from "./app";
 import { verifyToken } from "./middleware/requireAuth";
 import { setSocketIO } from "./notifications";
+import prisma from "./prisma";
 
 const PORT = Number(process.env.PORT) || 4000;
 
-const httpServer = createServer(app);
+// Run migrations on startup if DATABASE_URL is set
+async function runMigrations() {
+  if (!process.env.DATABASE_URL) {
+    console.warn('⚠️  DATABASE_URL not set, skipping migrations');
+    return;
+  }
+  try {
+    console.log('Running database migrations...');
+    await prisma.$executeRawUnsafe('SELECT 1');
+    console.log('✅ Database connected, running migrations...');
+    const { execSync } = require('child_process');
+    execSync('npx prisma migrate deploy', { stdio: 'inherit' });
+    console.log('✅ Migrations completed');
+  } catch (err) {
+    console.warn('⚠️  Migration failed (continuing anyway):', err instanceof Error ? err.message : err);
+  }
+}
+
+runMigrations().finally(() => {
+  const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
     origin: process.env.CORS_ORIGIN || "*",
@@ -53,3 +73,5 @@ setSocketIO(io);
 httpServer.listen(PORT, () => {
   console.log(`API running on http://localhost:${PORT}`);
 });
+});
+
