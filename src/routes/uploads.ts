@@ -1,4 +1,6 @@
 import { Router } from "express";
+import type { Request, Response } from "express";
+import type { FileFilterCallback } from "multer";
 import path from "path";
 import fs from "fs";
 import multer from "multer";
@@ -13,10 +15,10 @@ if (!fs.existsSync(uploadDir)) {
 }
 
 const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
+  destination: (_req: Request, _file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) => {
     cb(null, uploadDir);
   },
-  filename: (_req, file, cb) => {
+  filename: (_req: Request, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void) => {
     const ext = path.extname(file.originalname);
     const name = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
     cb(null, name);
@@ -26,7 +28,7 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage,
   limits: { fileSize: 10 * 1024 * 1024 },
-  fileFilter: (_req, file, cb) => {
+  fileFilter: (_req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
     const allowed = ["image/jpeg", "image/png", "image/webp", "image/gif", "video/mp4"];
     if (!allowed.includes(file.mimetype)) {
       return cb(new Error("Unsupported file type"));
@@ -36,7 +38,7 @@ const upload = multer({
 });
 
 // Upload media to a post
-router.post("/posts/:id", requireAuth, upload.single("file"), async (req, res) => {
+router.post("/posts/:id", requireAuth, upload.single("file"), async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     if (!id) {
