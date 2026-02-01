@@ -27,37 +27,42 @@ const LoginSchema = z.object({
 
 
 router.post("/signup", async (req, res) => {
-  const parsed = SignupSchema.safeParse(req.body);
-  if (!parsed.success) {
-    return res.status(400).json(parsed.error);
-  }
-
-  const { email, password, state, educationLevel } = parsed.data;
-
-  const exists = await prisma.user.findUnique({ where: { email } });
-  if (exists) {
-    return res.status(409).json({ error: "Email already exists" });
-  }
-
-  const passwordHash = await hashPassword(password);
-
-  const user = await prisma.user.create({
-    data: {
-      email,
-      passwordHash,
-      state: state,
-      educationLevel
-    },
-    select: {
-      id: true,
-      email: true,
-      state: true,
-      educationLevel: true
+  try {
+    const parsed = SignupSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json(parsed.error);
     }
-  });
 
-  const token = signToken({ sub: user.id });
-  return res.json({ token, user });
+    const { email, password, state, educationLevel } = parsed.data;
+
+    const exists = await prisma.user.findUnique({ where: { email } });
+    if (exists) {
+      return res.status(409).json({ error: "Email already exists" });
+    }
+
+    const passwordHash = await hashPassword(password);
+
+    const user = await prisma.user.create({
+      data: {
+        email,
+        passwordHash,
+        state: state,
+        educationLevel
+      },
+      select: {
+        id: true,
+        email: true,
+        state: true,
+        educationLevel: true
+      }
+    });
+
+    const token = signToken({ sub: user.id });
+    return res.json({ token, user });
+  } catch (error) {
+    console.error("Signup error:", error);
+    return res.status(500).json({ error: "Internal server error", details: error instanceof Error ? error.message : String(error) });
+  }
 });
 
 router.post("/login", async (req, res) => {
