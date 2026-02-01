@@ -32,6 +32,7 @@ model User {
   followers      Follow[] @relation("UserFollowedBy")
   media          PostMedia[]
   notifications  Notification[]
+  documentAnalyses DocumentAnalysis[]
 }
 
 model Post {
@@ -103,6 +104,7 @@ model Client {
   updatedAt DateTime @updatedAt
   userId    String
   user      User     @relation(fields: [userId], references: [id])
+  documentAnalyses DocumentAnalysis[]
 }
 
 model Notification {
@@ -116,4 +118,44 @@ model Notification {
   actorId   String?  // User who triggered the notification
   postId    String?  // Related post if applicable
   commentId String?  // Related comment if applicable
+}
+
+// Legal Analysis Models
+model DocumentAnalysis {
+  id                  String   @id @default(cuid())
+  title               String
+  documentType        String   // 'affidavit', 'police_statement', 'evidence', 'other'
+  documentUrl         String   // File path or URL to uploaded document
+  documentText        String   @db.Text // Extracted text from document
+  analysisStatus      String   @default("pending") // 'pending', 'analyzing', 'completed', 'failed'
+  
+  // AI Analysis Results
+  inconsistencies     Json?    // Array of flagged inconsistencies
+  constitutionalIssues Json?   // Array of constitutional violations
+  suggestedCaseLaws   Json?    // Array of relevant case law IDs
+  legalArguments      Json?    // Array of recommended arguments
+  aiSummary           String?  @db.Text // Overall AI analysis summary
+  
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  userId              String
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clientId            String?
+  client              Client?  @relation(fields: [clientId], references: [id])
+}
+
+model CaseLaw {
+  id              String   @id @default(cuid())
+  caseName        String
+  citation        String   @unique
+  year            Int
+  court           String
+  jurisdiction    String   // 'Federal', 'State', specific state name
+  category        String   // 'Constitutional', 'Criminal', 'Civil Rights', etc.
+  summary         String   @db.Text
+  relevantText    String   @db.Text // Key excerpts from the case
+  fullTextUrl     String?  // Link to full case text if available
+  keywords        String[] // Search keywords
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }

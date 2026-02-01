@@ -14,6 +14,7 @@ import socialRouter from "./routes/social";
 import uploadsRouter from "./routes/uploads";
 import searchRouter from "./routes/search";
 import notificationsRouter from "./routes/notifications";
+import legalRouter from "./routes/legal";
 import { requireAuth } from "./middleware/requireAuth";
 import prisma from "./prisma";
 
@@ -72,6 +73,9 @@ app.use("/search", searchRouter);
 
 // Mount notifications routes
 app.use("/notifications", notificationsRouter);
+
+// Mount legal analysis routes
+app.use("/legal", requireAuth, legalRouter);
 
 app.get("/health", (_req, res) => {
   res.json({ ok: true });

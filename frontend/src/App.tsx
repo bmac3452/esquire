@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { api, clearToken, getToken, setToken } from "./api";
+import LegalAnalysis from "./LegalAnalysis";
 
 type FeedItem = {
   id: string;
@@ -40,7 +41,7 @@ export default function App() {
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<"feed" | "search" | "notifications">("feed");
+  const [activeTab, setActiveTab] = useState<"feed" | "search" | "notifications" | "legal">("feed");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<{ users: User[]; posts: FeedItem[] }>({ users: [], posts: [] });
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -273,6 +274,12 @@ export default function App() {
             >
               🔔 Notifications {unreadCount > 0 && <span className="badge">{unreadCount}</span>}
             </button>
+            <button
+              className={activeTab === "legal" ? "active" : ""}
+              onClick={() => setActiveTab("legal")}
+            >
+              ⚖️ Legal AI
+            </button>
           </nav>
 
           {activeTab === "feed" && (
@@ -407,6 +414,10 @@ export default function App() {
                 </div>
               ))}
             </div>
+          )}
+
+          {activeTab === "legal" && (
+            <LegalAnalysis />
           )}
         </>
       )}
