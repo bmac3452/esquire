@@ -38,8 +38,8 @@ const upload = multer({
 async function extractText(filePath: string, mimeType: string): Promise<string> {
   if (mimeType === 'application/pdf') {
     const dataBuffer = await fs.readFile(filePath);
-    const data = await pdf(dataBuffer);
-    return data.text;
+    const data = await (pdf as any)(dataBuffer);
+    return (data as any).text || '';
   } else if (mimeType === 'text/plain') {
     return await fs.readFile(filePath, 'utf-8');
   } else {
@@ -195,7 +195,7 @@ router.get('/analyses/:id', async (req: Request, res: Response) => {
     }
 
     // If analysis is complete, fetch full case law details
-    let caseLawDetails = [];
+    let caseLawDetails: any[] = [];
     if (analysis.analysisStatus === 'completed' && analysis.suggestedCaseLaws) {
       const caseLawIds = (analysis.suggestedCaseLaws as any[]).map((c: any) => c.id);
       caseLawDetails = await prisma.caseLaw.findMany({

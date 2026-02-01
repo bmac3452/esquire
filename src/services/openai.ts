@@ -65,7 +65,8 @@ Format each finding with: text (quoted from document), issue, severity (high/med
       max_tokens: 4000
     });
 
-    const result = JSON.parse(completion.choices[0].message.content || '{}');
+    const content = completion.choices[0].message.content;
+    const result = JSON.parse(content || '{}');
     return result as AnalysisResult;
   } catch (error) {
     console.error('OpenAI API error:', error);
