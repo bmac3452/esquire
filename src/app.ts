@@ -29,7 +29,9 @@ if (isProd) {
 
 app.disable("x-powered-by");
 
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 app.use(
   rateLimit({
     windowMs: 15 * 60 * 1000,
@@ -44,7 +46,9 @@ app.use(morgan(isProd ? "combined" : "dev"));
 app.use(
   cors({
     origin: corsOrigin === "*" ? true : corsOrigin.split(",").map((o) => o.trim()),
-    credentials: corsOrigin !== "*"
+    credentials: corsOrigin !== "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"]
   })
 );
 app.use(express.json({ limit: "1mb" }));
@@ -109,7 +113,11 @@ app.use((_req, res) => {
 
 app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error("Unhandled error:", err);
-  res.status(500).json({ error: "Internal server error" });
+  const message = err instanceof Error ? err.message : String(err);
+  res.status(500).json({ 
+    error: "Internal server error",
+    ...(process.env.NODE_ENV === "development" && { details: message })
+  });
 });
 
 export default app;

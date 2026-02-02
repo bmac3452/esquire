@@ -72,5 +72,19 @@ export const api = {
   notifications: () => request<{ notifications: any[]; unreadCount: number }>("/notifications"),
   markNotificationRead: (id: string) => request<any>(`/notifications/${id}/read`, { method: "PATCH" }),
   markAllNotificationsRead: () => request<any>("/notifications/read-all", { method: "POST" }),
-  deleteNotification: (id: string) => request<any>(`/notifications/${id}`, { method: "DELETE" })
+  deleteNotification: (id: string) => request<any>(`/notifications/${id}`, { method: "DELETE" }),
+
+  // Legal analysis endpoints
+  uploadDocument: (file: File, title: string, documentType: string, clientId?: string) => {
+    const form = new FormData();
+    form.append("file", file);
+    form.append("title", title);
+    form.append("documentType", documentType);
+    if (clientId) form.append("clientId", clientId);
+    return request<any>("/legal/upload", { method: "POST", body: form });
+  },
+  getAnalyses: () => request<any[]>("/legal/analyses"),
+  getAnalysis: (id: string) => request<any>(`/legal/analyses/${id}`),
+  deleteAnalysis: (id: string) => request<any>(`/legal/analyses/${id}`, { method: "DELETE" }),
+  searchCaseLaws: (query: string) => request<any[]>(`/legal/caselaws?q=${encodeURIComponent(query)}`)
 };
