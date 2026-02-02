@@ -1,24 +1,23 @@
-app = "esquire-api"
+# fly.toml app configuration file generated for esquire-y-wuva on 2026-02-02T23:58:36Z
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'esquire-y-wuva'
+primary_region = 'ams'
 
 [build]
-  dockerfile = "Dockerfile"
-
-[env]
-  NODE_ENV = "production"
-  PORT = "4000"
-  RATE_LIMIT_MAX = "200"
 
 [http_service]
-  internal_port = 4000
+  internal_port = 8080
   force_https = true
-  auto_stop_machines = true
+  auto_stop_machines = 'stop'
   auto_start_machines = true
   min_machines_running = 0
-  processes = ["app"]
+  processes = ['app']
 
-[checks]
-  [checks.health]
-    type = "http"
-    interval = "15s"
-    timeout = "2s"
-    path = "/health"
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1
+  memory_mb = 256
